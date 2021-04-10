@@ -15,6 +15,10 @@ interface SetEnabledRequest {
     isEnabled: boolean;
 }
 
+interface SetPublicRequest {
+    isPublic: boolean;
+}
+
 interface ImportTelegramRequest {
     packUrl: string;
 }
@@ -43,6 +47,20 @@ export class AdminStickerService {
         if (!pack) throw new ApiError(404, "Sticker pack not found");
 
         pack.isEnabled = request.isEnabled;
+        await pack.save();
+        Cache.for(CACHE_STICKERS).clear();
+
+        return {}; // 200 OK
+    }
+
+    @POST
+    @Path("packs/:id/public")
+    @Security([ROLE_ADMIN])
+    public async setPackPublic(@PathParam("id") packId: number, request: SetPublicRequest): Promise<any> {
+        const pack = await StickerPack.findByPk(packId);
+        if (!pack) throw new ApiError(404, "Sticker pack not found");
+
+        pack.isPublic = request.isPublic;
         await pack.save();
         Cache.for(CACHE_STICKERS).clear();
 

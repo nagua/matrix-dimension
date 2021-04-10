@@ -35,13 +35,13 @@
                     <td colspan="5"><i>{{'No sticker packs installed.' | translate}}</i></td>
                 </tr>
                 <tr *ngFor="let pack of packs trackById">
-                    <td>{{ pack.displayName | translate}}</td>
+                    <td>{{ pack.displayName | translate }}</td>
                     <td>{{ pack.description | translate }}</td>
 
                     <td *ngIf="pack.author.type !== 'none'">
                         <a [href]="pack.author.reference" target="_blank">{{ pack.author.name }}</a>
                     </td>
-                    <td *ngIf="pack.author.type === 'none'">{{'Dimension' | translate}}</td>
+                    <td *ngIf="pack.author.type === 'none'">{{ 'Dimension' | translate }}</td>
 
                     <td><a [href]="pack.license.urlPath" target="_blank">{{ pack.license.name }}</a></td>
                     <td class="text-center">
@@ -50,6 +50,8 @@
                         </span>
                         <ui-switch [checked]="pack.isEnabled" size="small" [disabled]="isUpdating"
                                    (change)="toggleEnabled(pack)"></ui-switch>
+                        <ui-switch [checked]="pack.isPublic" size="small" [disabled]="isUpdating"
+                                   (change)="togglePublic(pack)"></ui-switch>
                         <span *ngIf="!pack.isEnabled && !isUpdating" class="removeButton" title="remove stickerpack" (click)="removePack(pack)">
                             <i class="fa fa-trash"></i>
                         </span>

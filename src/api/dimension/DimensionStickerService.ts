@@ -7,7 +7,7 @@ import { ApiError } from "../ApiError";
 import { StickerpackMetadataDownloader } from "../../utils/StickerpackMetadataDownloader";
 import { MatrixStickerBot } from "../../matrix/MatrixStickerBot";
 import config from "../../config";
-import { ROLE_USER } from "../security/MatrixSecurity";
+import { ROLE_USER, ROLE_ADMIN } from "../security/MatrixSecurity";
 
 export interface MemoryStickerPack {
     id: number;
@@ -15,6 +15,7 @@ export interface MemoryStickerPack {
     avatarUrl: string;
     description: string;
     isEnabled: boolean;
+    isPublic: boolean;
     author: {
         type: string;
         name: string;
@@ -110,13 +111,17 @@ export class DimensionStickerService {
 
         const userPacks = await UserStickerPack.findAll({where: {userId: userId, isSelected: true}});
 
+        const userIsAdmin = this.context.request.user.roles.includes(ROLE_ADMIN);
         const packs: MemoryUserStickerPack[] = [];
         for (const pack of allPacks) {
             const userPack = userPacks.find(p => p.packId === pack.id);
 
             const selectedPack = JSON.parse(JSON.stringify(pack));
             selectedPack.isSelected = userPack ? userPack.isSelected : false;
-            if (!selectedPack.isSelected && pack.trackingRoomAlias) continue;
+            if (!(selectedPack.isSelected || userIsAdmin)) {
+                if(pack.trackingRoomAlias || !pack.isPublic)
+                    continue;
+            }
             packs.push(selectedPack);
         }
 
@@ -181,6 +186,7 @@ export class DimensionStickerService {
             avatarUrl: pack.avatarUrl,
             description: pack.description,
             isEnabled: pack.isEnabled,
+            isPublic: pack.isPublic,
             author: {
                 type: pack.authorType,
                 name: pack.authorName,

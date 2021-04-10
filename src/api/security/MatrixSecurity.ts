@@ -11,6 +11,7 @@ import { ScalarClient } from "../../scalar/ScalarClient";
 export interface ILoggedInUser {
     userId: string;
     token: string;
+    roles: Array<string>;
 }
 
 export const ROLE_USER = "ROLE_USER";
@@ -93,9 +94,12 @@ export default class MatrixSecurity implements ServiceAuthenticator {
                         }
                     }
 
-                    if (this.matchesAnyRoute(req, ADMIN_ROUTES, false) && !this.getRoles(req).includes(ROLE_ADMIN)) {
+                    const roles = this.getRoles(req);
+                    if (this.matchesAnyRoute(req, ADMIN_ROUTES, false) && !roles.includes(ROLE_ADMIN)) {
                         return res.status(403).json({errcode: "M_UNAUTHORIZED", error: "User is not an admin"});
                     }
+
+                    req.user.roles = roles;
 
                     return next();
                 } else {

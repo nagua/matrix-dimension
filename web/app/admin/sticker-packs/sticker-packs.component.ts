@@ -55,6 +55,19 @@ export class AdminStickerPacksComponent implements OnInit {
         });
     }
 
+    public togglePublic(pack: FE_StickerPack) {
+        pack.isPublic = !pack.isPublic;
+        this.isUpdating = true;
+        this.adminStickers.togglePackPublic(pack.id, pack.isPublic).then(() => {
+            this.isUpdating = false;
+            this.translate.get('Sticker pack updated').subscribe((res: string) => {this.toaster.pop("success", res); });
+        }).catch(err => {
+            console.error(err);
+            pack.isPublic = !pack.isPublic; // revert change
+            this.isUpdating = false;
+            this.translate.get('Error updating sticker pack').subscribe((res: string) => {this.toaster.pop("error", res); });
+        });
+    }
     public previewStickers(pack: FE_StickerPack) {
         const modalRef = this.modal.open(AdminStickerPackPreviewComponent, { size: 'lg' });
         const previewInstance = modalRef.componentInstance as StickerPackPreviewMoadlInstance;

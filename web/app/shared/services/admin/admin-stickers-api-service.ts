@@ -17,6 +17,10 @@ export class AdminStickersApiService extends AuthedApi {
         return this.authedPost("/api/v1/dimension/admin/stickers/packs/" + packId + "/enabled", {isEnabled: isEnabled}).toPromise();
     }
 
+    public togglePackPublic(packId: number, isPublic: boolean): Promise<any> {
+        return this.authedPost("/api/v1/dimension/admin/stickers/packs/" + packId + "/public", {isPublic: isPublic}).toPromise();
+    }
+
     public importFromTelegram(packUrl: string): Promise<FE_StickerPack> {
         return this.authedPost<FE_StickerPack>("/api/v1/dimension/admin/stickers/packs/import/telegram", {packUrl: packUrl}).toPromise();
     }
